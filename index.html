@@ -315,9 +315,12 @@
 
         // Optional grain/flicker for exported PNG
         if (!opts.clean){
-          addGrain(ctx, w, h, 0.16);
-          addDust(ctx, w, h, 0.08);
-          addScratches(ctx, w, h, 0.14);
+          const grainStrength = opts.grainStrength === undefined ? 0.16 : opts.grainStrength;
+          const dustStrength = opts.dustStrength === undefined ? 0.08 : opts.dustStrength;
+          const scratchStrength = opts.scratchStrength === undefined ? 0.14 : opts.scratchStrength;
+          addGrain(ctx, w, h, grainStrength);
+          addDust(ctx, w, h, dustStrength);
+          addScratches(ctx, w, h, scratchStrength);
           // A tiny flicker wash
           if (Math.random() < 0.35){
             ctx.fillStyle = "rgba(255,255,255,0.04)";
@@ -452,7 +455,12 @@
             const ctx = canvas.getContext("2d");
             const frames = [];
             for (let i = 0; i < 3; i++){
-              drawCardToCanvas(canvas, w, h, { clean: false });
+              drawCardToCanvas(canvas, w, h, {
+                clean: false,
+                grainStrength: 0.24,
+                dustStrength: 0.14,
+                scratchStrength: 0.22
+              });
               frames.push(ctx.getImageData(0, 0, w, h));
             }
             const gifBytes = encodeGifWithOmggif(frames, w, h, 8);
@@ -530,7 +538,12 @@
         const ctx = canvas.getContext("2d");
         const frames = [];
         for (let i = 0; i < 3; i++){
-          drawCardToCanvas(canvas, w, h, { clean: false });
+          drawCardToCanvas(canvas, w, h, {
+            clean: false,
+            grainStrength: 0.24,
+            dustStrength: 0.14,
+            scratchStrength: 0.22
+          });
           frames.push(ctx.getImageData(0, 0, w, h));
         }
 
