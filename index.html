@@ -209,6 +209,7 @@
       let subtitleText = defaultSubtitle;
       let previewUrl = null;
       let previewIsBlob = false;
+      let previewRenderQueued = false;
 
       // Text is prompt-edited but not persisted.
       const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -441,9 +442,21 @@
 
       function getPreviewSize(){
         const rect = previewWrap.getBoundingClientRect();
-        const rawW = Math.max(1, Math.round(rect.width || 960));
-        const rawH = Math.max(1, Math.round(rect.height || 540));
+        const rawW = Math.max(1, Math.round(rect.width || 0));
+        const rawH = Math.max(1, Math.round(rect.height || 0));
+        if (rawW < 2 || rawH < 2){
+          return { w: 960, h: 540 };
+        }
         return { w: rawW, h: rawH };
+      }
+
+      function schedulePreviewRender(){
+        if (previewRenderQueued) return;
+        previewRenderQueued = true;
+        requestAnimationFrame(() => {
+          previewRenderQueued = false;
+          renderPreview();
+        });
       }
 
       function renderPreview(){
@@ -500,7 +513,7 @@
         } else {
           subtitleText = cleaned;
         }
-        renderPreview();
+        schedulePreviewRender();
       }
 
       function handleCanvasClick(event){
@@ -559,7 +572,7 @@
         a.click();
 
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        renderPreview();
+        schedulePreviewRender();
       }
 
       function downloadAsset(){
@@ -604,15 +617,21 @@
       }
 
       downloadBtn.addEventListener("click", downloadAsset);
-      exportSize.addEventListener("change", renderPreview);
-      textureToggle.addEventListener("change", renderPreview);
+      exportSize.addEventListener("change", schedulePreviewRender);
+      textureToggle.addEventListener("change", schedulePreviewRender);
       animateToggle.addEventListener("change", () => {
         updateDownloadLabel();
-        renderPreview();
+        schedulePreviewRender();
       });
       preview.addEventListener("click", handleCanvasClick);
       updateDownloadLabel();
-      renderPreview();
+      schedulePreviewRender();
+      window.addEventListener("load", schedulePreviewRender);
+      window.addEventListener("resize", schedulePreviewRender);
+      if (window.ResizeObserver){
+        const ro = new ResizeObserver(schedulePreviewRender);
+        ro.observe(previewWrap);
+      }
     })();
   </script>
   <script>
