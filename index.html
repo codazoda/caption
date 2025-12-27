@@ -109,11 +109,16 @@
       max-width: min(1100px, 92vw);
     }
 
-    .preview-wrap canvas{
+    .preview-wrap img{
       width: 100%;
       height: 100%;
       display: block;
       cursor: text;
+      object-fit: contain;
+    }
+
+    #out{
+      display: none;
     }
 
     .credit{
@@ -147,6 +152,7 @@
       .preview-wrap{ height: min(calc(100svh - 160px), 64vw); }
     }
   </style>
+  <script src="omggif.js"></script>
 </head>
 
 <body>
@@ -164,20 +170,26 @@
 
         <label title="Adds grain and flicker for a vintage projection feel">
           <input id="cleanPNG" type="checkbox" />
-          Add projection texture
+          Add texture
+        </label>
+
+        <label title="Exports a 3-frame animated GIF with varied texture">
+          <input id="animateGIF" type="checkbox" />
+          Animate
         </label>
       </div>
 
       <div class="right">
         <button id="downloadBtn" type="button">Download PNG</button>
-        <div class="hint">Click canvas to edit</div>
+        <div class="hint">Click preview to edit</div>
       </div>
     </div>
 
     <!-- Preview is always 16:9 (1080p aspect ratio) -->
     <div class="preview-wrap" id="captureRoot" aria-label="Silent film caption card preview">
-      <canvas id="out" aria-label="Caption card canvas"></canvas>
+      <img id="preview" alt="Caption card preview" />
     </div>
+    <canvas id="out" aria-hidden="true"></canvas>
     <div class="credit">Created by <a href="https://joeldare.com">Joel Dare</a></div>
   </div>
 
@@ -185,13 +197,18 @@
     (() => {
       const exportSize = document.getElementById("exportSize");
       const textureToggle = document.getElementById("cleanPNG");
+      const animateToggle = document.getElementById("animateGIF");
       const downloadBtn = document.getElementById("downloadBtn");
+      const previewWrap = document.getElementById("captureRoot");
       const canvas = document.getElementById("out");
+      const preview = document.getElementById("preview");
 
       const defaultTitle = "How To";
       const defaultSubtitle = "Create a video recording";
       let titleText = defaultTitle;
       let subtitleText = defaultSubtitle;
+      let previewUrl = null;
+      let previewIsBlob = false;
 
       // Text is prompt-edited but not persisted.
       const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -419,10 +436,49 @@
         return { w, h };
       }
 
+      function getPreviewSize(){
+        const rect = previewWrap.getBoundingClientRect();
+        const rawW = Math.max(1, Math.round(rect.width || 960));
+        const rawH = Math.max(1, Math.round(rect.height || 540));
+        return { w: rawW, h: rawH };
+      }
+
       function renderPreview(){
-        const { w, h } = parseSize(exportSize.value);
-        const clean = !textureToggle.checked;
+        const { w, h } = getPreviewSize();
+        const clean = animateToggle.checked ? false : !textureToggle.checked;
         drawCardToCanvas(canvas, w, h, { clean });
+        if (animateToggle.checked){
+          try {
+            const ctx = canvas.getContext("2d");
+            const frames = [];
+            for (let i = 0; i < 3; i++){
+              drawCardToCanvas(canvas, w, h, { clean: false });
+              frames.push(ctx.getImageData(0, 0, w, h));
+            }
+            const gifBytes = encodeGifWithOmggif(frames, w, h, 8);
+            const blob = new Blob([gifBytes], { type: "image/gif" });
+            const url = URL.createObjectURL(blob);
+            setPreviewSrc(url, true);
+          } catch (err){
+            console.error("GIF preview failed:", err);
+            setPreviewSrc(canvas.toDataURL("image/png"), false);
+          }
+        } else {
+          setPreviewSrc(canvas.toDataURL("image/png"), false);
+        }
+      }
+
+      function setPreviewSrc(url, isBlob){
+        if (previewIsBlob && previewUrl){
+          URL.revokeObjectURL(previewUrl);
+        }
+        previewUrl = url;
+        previewIsBlob = isBlob;
+        preview.src = url;
+      }
+
+      function updateDownloadLabel(){
+        downloadBtn.textContent = animateToggle.checked ? "Download GIF" : "Download PNG";
       }
 
       function updateText(target){
@@ -440,7 +496,7 @@
       }
 
       function handleCanvasClick(event){
-        const rect = canvas.getBoundingClientRect();
+        const rect = preview.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
         const x = (event.clientX - rect.left) * scaleX;
@@ -469,10 +525,80 @@
         a.click();
       }
 
-      downloadBtn.addEventListener("click", downloadPNG);
+      function downloadGIF(){
+        const { w, h } = parseSize(exportSize.value);
+        const ctx = canvas.getContext("2d");
+        const frames = [];
+        for (let i = 0; i < 3; i++){
+          drawCardToCanvas(canvas, w, h, { clean: false });
+          frames.push(ctx.getImageData(0, 0, w, h));
+        }
+
+        const gifBytes = encodeGifWithOmggif(frames, w, h, 8);
+        const blob = new Blob([gifBytes], { type: "image/gif" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        const safeTitle = (titleText || "caption").trim().toLowerCase()
+          .replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") || "caption";
+        a.download = `${safeTitle}_${w}x${h}.gif`;
+        a.href = url;
+        a.click();
+
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        renderPreview();
+      }
+
+      function downloadAsset(){
+        if (animateToggle.checked){
+          downloadGIF();
+          return;
+        }
+        downloadPNG();
+      }
+
+      function encodeGifWithOmggif(frames, w, h, delayCs){
+        if (typeof GifWriter === "undefined"){
+          throw new Error("omggif not loaded");
+        }
+        const palette = [];
+        for (let i = 0; i < 256; i++){
+          palette.push((i << 16) | (i << 8) | i);
+        }
+        const est = w * h * frames.length + 2048 + (w * h * frames.length) / 2;
+        const buffer = new Uint8Array(Math.ceil(est));
+        const writer = new GifWriter(buffer, w, h, { loop: 0, palette });
+        for (const frame of frames){
+          const indices = imageDataToIndices(frame);
+          writer.addFrame(0, 0, w, h, indices, { delay: delayCs });
+        }
+        const outSize = writer.end();
+        return buffer.slice(0, outSize);
+      }
+
+      function imageDataToIndices(frame){
+        const data = frame.data;
+        const out = new Uint8Array(frame.width * frame.height);
+        let p = 0;
+        for (let i = 0; i < data.length; i += 4){
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const v = Math.round((r * 299 + g * 587 + b * 114) / 1000);
+          out[p++] = v < 0 ? 0 : (v > 255 ? 255 : v);
+        }
+        return out;
+      }
+
+      downloadBtn.addEventListener("click", downloadAsset);
       exportSize.addEventListener("change", renderPreview);
       textureToggle.addEventListener("change", renderPreview);
-      canvas.addEventListener("click", handleCanvasClick);
+      animateToggle.addEventListener("change", () => {
+        updateDownloadLabel();
+        renderPreview();
+      });
+      preview.addEventListener("click", handleCanvasClick);
+      updateDownloadLabel();
       renderPreview();
     })();
   </script>

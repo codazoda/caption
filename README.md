@@ -80,3 +80,9 @@ Think: white monospaced text on black, vintage borders, subtle film grain, and p
 - Batch export multiple caption slides
 - Subtitle-only mode
 - Non-16:9 formats (9:16, 1:1, 4:3)
+
+---
+
+## Acknowledgements
+
+- GIF encoding powered by [omggif](https://github.com/deanm/omggif) by Dean McNamee.
