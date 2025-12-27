@@ -602,5 +602,13 @@
       renderPreview();
     })();
   </script>
+  <script>
+    if (location.hostname === "caption.joeldare.com"){
+      const s = document.createElement("script");
+      s.src = "https://counter.joeldare.com/counter.js";
+      s.async = true;
+      document.head.appendChild(s);
+    }
+  </script>
 </body>
 </html>
