@@ -100,13 +100,15 @@
       user-select: none;
     }
 
+    :root{
+      --preview-max-h: calc(100svh - 200px);
+    }
+
     /* 1080p preview frame (16:9) */
     .preview-wrap{
-      width: min(1100px, 92vw);
+      width: min(1100px, 92vw, calc(var(--preview-max-h) * 16 / 9));
       aspect-ratio: 16 / 9; /* 1080p shape */
       position: relative;
-      height: min(calc(100svh - 200px), 62vw);
-      max-width: min(1100px, 92vw);
     }
 
     .preview-wrap img{
@@ -149,7 +151,7 @@
 
     @media (max-height: 720px){
       .stage{ gap: 10px; padding: clamp(12px, 2.4vw, 26px); }
-      .preview-wrap{ height: min(calc(100svh - 160px), 64vw); }
+      :root{ --preview-max-h: calc(100svh - 160px); }
     }
   </style>
   <script src="omggif.js"></script>
@@ -441,13 +443,7 @@
       }
 
       function getPreviewSize(){
-        const rect = previewWrap.getBoundingClientRect();
-        const rawW = Math.max(1, Math.round(rect.width || 0));
-        const rawH = Math.max(1, Math.round(rect.height || 0));
-        if (rawW < 2 || rawH < 2){
-          return { w: 960, h: 540 };
-        }
-        return { w: rawW, h: rawH };
+        return parseSize(exportSize.value);
       }
 
       function schedulePreviewRender(){
@@ -502,12 +498,25 @@
         downloadBtn.textContent = animateToggle.checked ? "Download GIF" : "Download PNG";
       }
 
+      function normalizeLineBreaks(value){
+        return String(value)
+          .replace(/\r\n/g, "\n")
+          .replace(/\\n/g, "\n")
+          .replace(/\/n/g, "\n")
+          .trim();
+      }
+
+      function escapeLineBreaks(value){
+        return String(value).replace(/\n/g, "\\n");
+      }
+
       function updateText(target){
         const label = target === "title" ? "title" : "subtitle";
         const current = target === "title" ? titleText : subtitleText;
-        const next = window.prompt(`Enter ${label} text (use \\n for line breaks):`, current);
+        const promptValue = escapeLineBreaks(current);
+        const next = window.prompt(`Enter ${label} text (use \\n for line breaks):`, promptValue);
         if (next === null) return;
-        const cleaned = String(next).replace(/\r\n/g, "\n").trim();
+        const cleaned = normalizeLineBreaks(next);
         if (target === "title"){
           titleText = cleaned;
         } else {
