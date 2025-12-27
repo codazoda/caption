@@ -19,15 +19,11 @@ Think: white monospaced text on black, vintage borders, subtle film grain, and p
   - Click directly on the title (`h1`) or subtitle (`h2`) and type
   - Supports 1–3+ lines (manual line breaks supported)
 
-- 💾 **Persistent text**
-  - Captions are saved automatically in `localStorage`
-  - Reload the page and your last text is still there
-
 - 🖼 **High-resolution PNG export**
   - 1080p (1920×1080)
   - 2×1080p / 4K (3840×2160) — default
   - 4×1080p / 8K (7680×4320)
-  - Clean export option (no grain or flicker)
+  - Clean export default (no grain or flicker)
 
 - 📐 **Correct video aspect ratio**
   - Preview always matches 16:9 (1080p)
@@ -82,10 +78,3 @@ Think: white monospaced text on black, vintage borders, subtle film grain, and p
 - Batch export multiple caption slides
 - Subtitle-only mode
 - Non-16:9 formats (9:16, 1:1, 4:3)
-
----
-
-## License
-
-Do whatever you want with it.  
-If it ends up in a film reel projector in a haunted theater, even better 🎥
