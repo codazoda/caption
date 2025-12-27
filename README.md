@@ -2,7 +2,7 @@
 
 A single-file, zero-dependency web page for creating **old-timey silent-film style caption cards** and exporting them as **PNG images** for video use.
 
-<p style="text-align: center;">Try it at <a href="https://caption.joeldare.com">https://caption.joeldare.com</a>).</p>
+Try it at [https://caption.joeldare.com](https://caption.joeldare.com).
 
 ![Caption Card Screenshot](caption.png)
 
