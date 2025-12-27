@@ -2,6 +2,8 @@
 
 A single-file, zero-dependency web page for creating **old-timey silent-film style caption cards** and exporting them as **PNG images** for video use.
 
+<p style="text-align: center;">Try it at <a href="https://caption.joeldare.com">https://caption.joeldare.com</a>).</p>
+
 ![Caption Card Screenshot](caption.png)
 
 Think: white monospaced text on black, vintage borders, subtle film grain, and perfectly centered titles—ready for drop-in use with modern video editors.
