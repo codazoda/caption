@@ -13,8 +13,6 @@
       --pad: clamp(18px, 3.2vw, 46px);
       --border: clamp(4px, .7vw, 10px);
       --radius: clamp(10px, 1.2vw, 18px);
-      --h1: clamp(34px, 5vw, 68px);
-      --h2: clamp(28px, 4.2vw, 56px);
     }
 
     html, body {
@@ -111,188 +109,12 @@
       max-width: min(1100px, 92vw);
     }
 
-    /* Title card inside preview */
-    .card{
-      position: absolute;
-      inset: 0;
-      border: var(--border) solid var(--fg);
-      border-radius: var(--radius);
-      padding: calc(var(--pad) * 1.1);
-      box-sizing: border-box;
-      background: #000;
-      display: grid;
-      grid-template-rows: 1fr auto 1fr;
-      align-items: center;
-      text-align: center;
-      overflow: hidden;
+    .preview-wrap canvas{
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: text;
     }
-
-    .card::before{
-      content:"";
-      position:absolute;
-      inset: calc(var(--pad) * 0.55);
-      border: 2px solid var(--line);
-      border-radius: calc(var(--radius) * .8);
-      pointer-events: none;
-    }
-
-    .grain, .dust, .vignette, .flicker {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 2;
-      opacity: .18;
-    }
-
-    .vignette{
-      mix-blend-mode: multiply;
-      opacity: .55;
-      background:
-        radial-gradient(closest-side at 50% 50%,
-          rgba(0,0,0,0) 0%,
-          rgba(0,0,0,0) 60%,
-          rgba(0,0,0,.55) 100%);
-      z-index: 3;
-    }
-
-    .grain{
-      mix-blend-mode: screen;
-      opacity: .28;
-      background:
-        repeating-linear-gradient(0deg,
-          rgba(255,255,255,.07) 0px,
-          rgba(255,255,255,.07) 1px,
-          rgba(0,0,0,0) 2px,
-          rgba(0,0,0,0) 4px);
-      animation: drift 2.4s linear infinite;
-      z-index: 2;
-    }
-
-    .dust{
-      mix-blend-mode: screen;
-      opacity: .35;
-      background-image:
-        radial-gradient(rgba(255,255,255,.22) 1px, rgba(0,0,0,0) 1.6px),
-        radial-gradient(rgba(255,255,255,.14) 1px, rgba(0,0,0,0) 1.8px);
-      background-size: 130px 130px, 190px 190px;
-      background-position: 0 0, 60px 40px;
-      animation: dust-shift 5s steps(6) infinite;
-      z-index: 2;
-    }
-
-    .flicker{
-      background: rgba(255,255,255,.06);
-      opacity: 0;
-      z-index: 4;
-      animation: flicker 5.5s infinite;
-    }
-
-    @keyframes drift{
-      0% { transform: translate3d(0,0,0); }
-      100% { transform: translate3d(-30px, 18px, 0); }
-    }
-    @keyframes dust-shift{
-      0% { transform: translate3d(0,0,0); }
-      100% { transform: translate3d(-60px, 30px, 0); }
-    }
-    @keyframes flicker{
-      0%, 8%, 100% { opacity: 0; }
-      9% { opacity: .08; }
-      10% { opacity: 0; }
-      55% { opacity: 0; }
-      56% { opacity: .10; }
-      57% { opacity: 0; }
-      77% { opacity: 0; }
-      78% { opacity: .06; }
-      79% { opacity: 0; }
-    }
-
-    .corner{
-      position:absolute;
-      width: clamp(36px, 6vw, 80px);
-      height: clamp(36px, 6vw, 80px);
-      border: 3px solid var(--fg);
-      opacity: .75;
-      z-index: 1;
-      pointer-events: none;
-    }
-    .corner.tl{ top: 18px; left: 18px; border-right: none; border-bottom:none; border-top-left-radius: 10px; }
-    .corner.tr{ top: 18px; right: 18px; border-left: none; border-bottom:none; border-top-right-radius: 10px; }
-    .corner.bl{ bottom: 18px; left: 18px; border-right: none; border-top:none; border-bottom-left-radius: 10px; }
-    .corner.br{ bottom: 18px; right: 18px; border-left: none; border-top:none; border-bottom-right-radius: 10px; }
-
-    .ornament{
-      justify-self: center;
-      align-self: center;
-      width: min(520px, 78%);
-      height: 18px;
-      position: relative;
-      opacity: .8;
-      z-index: 1;
-    }
-    .ornament::before,
-    .ornament::after{
-      content:"";
-      position:absolute;
-      top: 50%;
-      width: 44%;
-      height: 2px;
-      background: var(--line);
-      transform: translateY(-50%);
-    }
-    .ornament::before{ left: 0; }
-    .ornament::after{ right: 0; }
-    .ornament span{
-      position:absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%,-50%);
-      color: var(--muted);
-      font-size: 18px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    h1, h2{
-      margin: 0;
-      line-height: 1.08;
-      letter-spacing: .02em;
-      text-transform: uppercase;
-      outline: none;
-      z-index: 1;
-    }
-    h1{
-      font-size: var(--h1);
-      font-weight: 800;
-      padding: 0 10px;
-    }
-    h2{
-      font-size: var(--h2);
-      font-weight: 700;
-      padding: 0 10px;
-      color: var(--muted);
-    }
-
-    .top, .bottom{
-      display: grid;
-      align-items: center;
-      min-height: 0;
-      z-index: 1;
-    }
-
-    .top h1, .bottom h2{
-      max-width: 22ch;
-      margin-inline: auto;
-      white-space: pre-wrap; /* allow manual line breaks */
-    }
-
-    [contenteditable="true"]:focus{
-      text-shadow: 0 0 12px rgba(255,255,255,.22);
-    }
-
-    /* Hidden canvas (used for export) */
-    canvas{ display:none; }
 
     .credit{
       font-size: 11px;
@@ -348,54 +170,40 @@
 
       <div class="right">
         <button id="downloadBtn" type="button">Download PNG</button>
-        <div class="hint">Click text to edit</div>
+        <div class="hint">Click canvas to edit</div>
       </div>
     </div>
 
     <!-- Preview is always 16:9 (1080p aspect ratio) -->
-    <div class="preview-wrap" id="captureRoot" aria-label="Silent film caption card">
-      <div class="card" id="card">
-        <div class="corner tl"></div>
-        <div class="corner tr"></div>
-        <div class="corner bl"></div>
-        <div class="corner br"></div>
-
-        <div class="top">
-          <h1 id="h1" contenteditable="true" spellcheck="false" aria-label="Title">How To</h1>
-        </div>
-
-        <div class="ornament" aria-hidden="true">
-          <span>✦ ✦ ✦</span>
-        </div>
-
-        <div class="bottom">
-          <h2 id="h2" contenteditable="true" spellcheck="false" aria-label="Subtitle">Create a video recording</h2>
-        </div>
-
-        <div class="grain" id="grain"></div>
-        <div class="dust" id="dust"></div>
-        <div class="vignette" id="vignette"></div>
-        <div class="flicker" id="flicker"></div>
-      </div>
+    <div class="preview-wrap" id="captureRoot" aria-label="Silent film caption card preview">
+      <canvas id="out" aria-label="Caption card canvas"></canvas>
     </div>
-
-    <canvas id="out"></canvas>
     <div class="credit">Created by <a href="https://joeldare.com">Joel Dare</a></div>
   </div>
 
   <script>
     (() => {
-      const h1 = document.getElementById("h1");
-      const h2 = document.getElementById("h2");
       const exportSize = document.getElementById("exportSize");
       const textureToggle = document.getElementById("cleanPNG");
       const downloadBtn = document.getElementById("downloadBtn");
+      const canvas = document.getElementById("out");
 
-      const grain = document.getElementById("grain");
-      const dust = document.getElementById("dust");
-      const flicker = document.getElementById("flicker");
+      const defaultTitle = "How To";
+      const defaultSubtitle = "Create a video recording";
+      let titleText = defaultTitle;
+      let subtitleText = defaultSubtitle;
 
-      // Text is editable but not persisted.
+      // Text is prompt-edited but not persisted.
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+      function getTextRegions(w, h){
+        const pad = Math.round(clamp(w * 0.04, 54, 120));
+        const ornY = Math.round(h * 0.50);
+        return {
+          topRegion: { x: pad, y: pad, w: w - pad * 2, h: ornY - pad - Math.round(h * 0.06) },
+          botRegion: { x: pad, y: ornY + Math.round(h * 0.06), w: w - pad * 2, h: h - (ornY + Math.round(h * 0.06)) - pad }
+        };
+      }
 
       // --- PNG export (no external libs) ---
       // Strategy: draw a high-res title card directly to canvas (vector-ish) so the PNG is crisp.
@@ -405,7 +213,6 @@
         canvas.height = h;
 
         // Helpers
-        const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
         const pad = Math.round(clamp(w * 0.04, 54, 120)); // scales nicely at 1080p/4K
         const border = Math.round(clamp(w * 0.004, 6, 16));
         const radius = Math.round(clamp(w * 0.012, 18, 38));
@@ -461,18 +268,17 @@
         ctx.font = `700 ${Math.round(clamp(w*0.012, 18, 34))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
         ctx.fillText("✦ ✦ ✦", w/2, ornY - Math.round(clamp(h*0.002, 2, 10)));
 
-        // Text blocks: top (h1) and bottom (h2), each centered within its half.
-        const topRegion = { x: pad, y: pad, w: w - pad*2, h: ornY - pad - Math.round(h*0.06) };
-        const botRegion = { x: pad, y: ornY + Math.round(h*0.06), w: w - pad*2, h: h - (ornY + Math.round(h*0.06)) - pad };
+        // Text blocks: top and bottom, each centered within its half.
+        const { topRegion, botRegion } = getTextRegions(w, h);
 
-        drawMultilineCentered(ctx, h1.textContent, topRegion, {
+        drawMultilineCentered(ctx, titleText, topRegion, {
           fontWeight: 800,
           maxFontPx: Math.round(clamp(h*0.11, 60, 170)),
           minFontPx: Math.round(clamp(h*0.05, 28, 88)),
           color: "#fff"
         });
 
-        drawMultilineCentered(ctx, h2.textContent, botRegion, {
+        drawMultilineCentered(ctx, subtitleText, botRegion, {
           fontWeight: 700,
           maxFontPx: Math.round(clamp(h*0.095, 52, 150)),
           minFontPx: Math.round(clamp(h*0.045, 24, 80)),
@@ -613,15 +419,50 @@
         return { w, h };
       }
 
+      function renderPreview(){
+        const { w, h } = parseSize(exportSize.value);
+        const clean = !textureToggle.checked;
+        drawCardToCanvas(canvas, w, h, { clean });
+      }
+
+      function updateText(target){
+        const label = target === "title" ? "title" : "subtitle";
+        const current = target === "title" ? titleText : subtitleText;
+        const next = window.prompt(`Enter ${label} text (use \\n for line breaks):`, current);
+        if (next === null) return;
+        const cleaned = String(next).replace(/\r\n/g, "\n").trim();
+        if (target === "title"){
+          titleText = cleaned;
+        } else {
+          subtitleText = cleaned;
+        }
+        renderPreview();
+      }
+
+      function handleCanvasClick(event){
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const x = (event.clientX - rect.left) * scaleX;
+        const y = (event.clientY - rect.top) * scaleY;
+        const { topRegion, botRegion } = getTextRegions(canvas.width, canvas.height);
+        if (x >= topRegion.x && x <= topRegion.x + topRegion.w && y >= topRegion.y && y <= topRegion.y + topRegion.h){
+          updateText("title");
+          return;
+        }
+        if (x >= botRegion.x && x <= botRegion.x + botRegion.w && y >= botRegion.y && y <= botRegion.y + botRegion.h){
+          updateText("subtitle");
+        }
+      }
+
       function downloadPNG(){
         const { w, h } = parseSize(exportSize.value);
-        const canvas = document.getElementById("out");
         const clean = !textureToggle.checked;
 
         drawCardToCanvas(canvas, w, h, { clean });
 
         const a = document.createElement("a");
-        const safeTitle = (h1.textContent || "caption").trim().toLowerCase()
+        const safeTitle = (titleText || "caption").trim().toLowerCase()
           .replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") || "caption";
         a.download = `${safeTitle}_${w}x${h}.png`;
         a.href = canvas.toDataURL("image/png");
@@ -629,17 +470,10 @@
       }
 
       downloadBtn.addEventListener("click", downloadPNG);
-
-      // Default to clean; checkbox enables texture.
-      const applyTextureState = () => {
-        const on = textureToggle.checked;
-        grain.style.display = on ? "block" : "none";
-        dust.style.display = on ? "block" : "none";
-        flicker.style.display = on ? "block" : "none";
-      };
-
-      applyTextureState();
-      textureToggle.addEventListener("change", applyTextureState);
+      exportSize.addEventListener("change", renderPreview);
+      textureToggle.addEventListener("change", renderPreview);
+      canvas.addEventListener("click", handleCanvasClick);
+      renderPreview();
     })();
   </script>
 </body>
